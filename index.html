@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Ambassador Posting Schedule</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9f9f7; color: #1a1a18; padding: 2rem 1rem; }
+  h1 { font-size: 20px; font-weight: 500; margin-bottom: 1.5rem; color: #1a1a18; }
+  .summary { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .stat { background: #f1efe8; border-radius: 8px; padding: 10px 16px; flex: 1; min-width: 100px; text-align: center; }
+  .stat-n { font-size: 18px; font-weight: 500; color: #1a1a18; }
+  .stat-l { font-size: 12px; color: #5f5e5a; margin-top: 2px; }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.25rem; }
+  .filter-btn { font-size: 13px; padding: 5px 14px; border-radius: 8px; border: 0.5px solid #b4b2a9; background: transparent; color: #5f5e5a; cursor: pointer; }
+  .filter-btn.active { background: #f1efe8; color: #1a1a18; border-color: #888780; font-weight: 500; }
+  .week-label { font-size: 11px; color: #888780; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; margin: 1.25rem 0 6px; padding-bottom: 4px; border-bottom: 0.5px solid #d3d1c7; }
+  .row { display: grid; grid-template-columns: 110px 1fr auto; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 8px; border: 0.5px solid #d3d1c7; margin-bottom: 6px; background: #fff; }
+  .row:hover { border-color: #b4b2a9; }
+  .date { font-size: 13px; color: #5f5e5a; }
+  .name { font-size: 14px; font-weight: 500; color: #1a1a18; }
+  .uni { font-size: 12px; color: #5f5e5a; }
+  .badge { font-size: 11px; padding: 3px 9px; border-radius: 99px; font-weight: 500; white-space: nowrap; }
+  .b1 { background: #E6F1FB; color: #0C447C; }
+  .b2 { background: #EEEDFE; color: #3C3489; }
+  .b3 { background: #E1F5EE; color: #085041; }
+  .requirements { background: #fff; border: 0.5px solid #d3d1c7; border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 2rem; }
+  .req-title { font-size: 13px; font-weight: 500; color: #5f5e5a; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; }
+  .req-intro { font-size: 14px; color: #1a1a18; line-height: 1.6; margin-bottom: 1rem; }
+  .req-items { display: flex; gap: 10px; flex-wrap: wrap; }
+  .req-item { display: flex; align-items: flex-start; gap: 10px; background: #f9f9f7; border: 0.5px solid #d3d1c7; border-radius: 8px; padding: 10px 14px; flex: 1; min-width: 160px; }
+  .req-num { font-size: 13px; font-weight: 500; color: #fff; background: #378ADD; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .req-text { font-size: 13px; color: #1a1a18; font-weight: 500; line-height: 1.4; }
+  .req-note { font-size: 12px; color: #5f5e5a; margin-top: 0.75rem; line-height: 1.5; }
+  @media (max-width: 480px) {
+    .row { grid-template-columns: 90px 1fr auto; gap: 8px; }
+    .req-items { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<h1>Student ambassador posting schedule</h1>
+
+<div class="requirements">
+  <div class="req-title">Post requirements</div>
+  <div class="req-intro">All ambassadors are required to create and share a personal page with the following sections:</div>
+  <div class="req-items">
+    <div class="req-item"><div class="req-num">1</div><div class="req-text">About Me</div></div>
+    <div class="req-item"><div class="req-num">2</div><div class="req-text">What I Love About Copilot</div></div>
+    <div class="req-item"><div class="req-num">3</div><div class="req-text">My Copilot Use Case</div></div>
+  </div>
+  <div class="req-note">While you're free to explore different designs, the core message must remain aligned.</div>
+</div>
+
+<div class="summary" id="summary"></div>
+<div class="filters">
+  <button class="filter-btn active" onclick="filter('all', this)">All batches</button>
+  <button class="filter-btn" onclick="filter('1', this)">Batch 1</button>
+  <button class="filter-btn" onclick="filter('2', this)">Batch 2</button>
+  <button class="filter-btn" onclick="filter('3', this)">Batch 3</button>
+</div>
+<div id="schedule"></div>
+
+<script>
+const students = [
+  {order:1, first:"Adele", last:"Ng", uni:"NTU", batch:1},
+  {order:2, first:"Wilson", last:"Soon", uni:"NUS", batch:1},
+  {order:3, first:"Veronique", last:"Tan", uni:"SUTD", batch:2},
+  {order:4, first:"Jolie", last:"Quek", uni:"SIM", batch:2},
+  {order:5, first:"Sebastian", last:"Yang", uni:"SUSS", batch:2},
+  {order:6, first:"Charlotte", last:"Lee", uni:"SMU", batch:3},
+  {order:7, first:"Vera", last:"Wang", uni:"NTU", batch:1},
+  {order:8, first:"Federick", last:"Halim", uni:"NUS", batch:1},
+  {order:9, first:"Kaiwen", last:"Wang", uni:"SUTD", batch:2},
+  {order:10, first:"Jessica", last:"Jagadeshwaran", uni:"SIM", batch:2},
+  {order:11, first:"Tay", last:"Zheng", uni:"SUSS", batch:3},
+  {order:12, first:"Adalia", last:"Lim", uni:"SMU", batch:3},
+  {order:13, first:"Alva", last:"Mridha", uni:"NTU", batch:1},
+  {order:14, first:"Benson", last:"Chua", uni:"NUS", batch:3},
+  {order:15, first:"Preetika", last:"Magendrakumar", uni:"SUTD", batch:2},
+  {order:16, first:"Shravya", last:"Dadi", uni:"SIM", batch:2},
+  {order:17, first:"Aditi", last:"Pendurkar", uni:"SUSS", batch:3},
+  {order:18, first:"Racshanyaa", last:"Jagadish", uni:"NTU", batch:1},
+  {order:19, first:"Charlotte", last:"Kuek", uni:"NUS", batch:3},
+  {order:20, first:"Abhishek", last:"Vulla", uni:"SUTD", batch:2},
+  {order:21, first:"Olivia", last:"Ezhilvalavan", uni:"SIM", batch:2},
+  {order:22, first:"Adeline", last:"Nissi", uni:"NTU", batch:1},
+  {order:23, first:"Wen Ting", last:"Chua", uni:"NUS", batch:3},
+  {order:24, first:"Neha", last:"Gupta", uni:"SUTD", batch:2},
+  {order:25, first:"Amir", last:"Ashraf", uni:"SIM", batch:2},
+  {order:26, first:"Bhumi", last:"Gupta", uni:"NTU", batch:1},
+  {order:27, first:"Abel", last:"Lee", uni:"SUTD", batch:2},
+  {order:28, first:"Jolene", last:"Gan", uni:"NTU", batch:1},
+  {order:29, first:"Haochen", last:"Wang", uni:"SUTD", batch:3},
+  {order:30, first:"Chaitanya", last:"Gupta", uni:"NTU", batch:1},
+];
+
+function getPostDates(count) {
+  const dates = [];
+  let d = new Date(2026, 3, 14);
+  while (dates.length < count) {
+    const day = d.getDay();
+    if (day !== 0 && day !== 6) {
+      dates.push(new Date(d));
+      d.setDate(d.getDate() + 1);
+      while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1);
+    }
+    d.setDate(d.getDate() + 1);
+  }
+  return dates;
+}
+
+const postDates = getPostDates(30);
+const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+
+function fmt(d) { return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]}`; }
+function weekOf(d) {
+  const mon = new Date(d);
+  mon.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  return `Week of ${mon.getDate()} ${months[mon.getMonth()]}`;
+}
+
+let activeFilter = 'all';
+
+function filter(b, el) {
+  activeFilter = b;
+  document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+function render() {
+  const filtered = students.filter(s => activeFilter === 'all' || String(s.batch) === activeFilter);
+  let html = '';
+  let lastWeek = '';
+  filtered.forEach(s => {
+    const d = postDates[s.order - 1];
+    const wk = weekOf(d);
+    if (wk !== lastWeek) {
+      if (lastWeek !== '') html += '</div>';
+      html += `<div><div class="week-label">${wk}</div>`;
+      lastWeek = wk;
+    }
+    const bc = s.batch === 1 ? 'b1' : s.batch === 2 ? 'b2' : 'b3';
+    html += `<div class="row">
+      <div class="date">${fmt(d)}</div>
+      <div><div class="name">${s.first} ${s.last}</div><div class="uni">${s.uni}</div></div>
+      <span class="badge ${bc}">Batch ${s.batch}</span>
+    </div>`;
+  });
+  if (lastWeek) html += '</div>';
+  document.getElementById('schedule').innerHTML = html;
+
+  document.getElementById('summary').innerHTML = `
+    <div class="stat"><div class="stat-n">30</div><div class="stat-l">ambassadors</div></div>
+    <div class="stat"><div class="stat-n">${fmt(postDates[0])}</div><div class="stat-l">first post</div></div>
+    <div class="stat"><div class="stat-n">${fmt(postDates[29])}</div><div class="stat-l">last post</div></div>
+    <div class="stat"><div class="stat-n">~2 days</div><div class="stat-l">between posts</div></div>
+  `;
+}
+
+render();
+</script>
+</body>
+</html>
